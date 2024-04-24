@@ -34,19 +34,19 @@ System.out.println("Size: " + emitter.size());
 
 You can also unsubscribe any subscriber in this way.
 ```java
-var emitter    = new Emitter<String>();
-var subscriber = new Subscriber<>("messages", String.class, (String value, SubscriberContext context) -> {
-    if (value.equals("hello")) {
-        System.out.println("Did you mean 'Hello World!'?");
+var emitter = new Emitter<Integer>();
+var subscriber = new Subscriber<>("numbers", Integer.class, (Integer value, SubscriberContext context) -> {
+    if (value.equals(5)) {
+        System.out.println("5 fingers!");
     }
 });
 
 emitter.subscribe(subscriber);
-emitter.emit("messages", "hello");
+emitter.emit("numbers", 5);
 emitter.unsubscribe(subscriber);
 System.out.println("Size: " + emitter.size());
 
-// Output: Did you mean 'Hello World!'?
+// Output: 5 fingers!
 // Size: 0
 ```
 
@@ -55,7 +55,9 @@ System.out.println("Size: " + emitter.size());
 var emitter = new Emitter<String>();
 emitter.subscribe(new Subscriber<>("messages", String.class, (String value, SubscriberContext context) -> {
     if (value.equals("hello")) {
-        context.message().set("Hello World!");
+        context.message().set(
+            List.of("Hello", "World")
+        );
     }
 }));
 emitter.subscribe(new Subscriber<>("messages", String.class, (String value, SubscriberContext context) -> {
@@ -66,22 +68,22 @@ emitter.subscribe(new Subscriber<>("messages", String.class, (String value, Subs
 
 emitter.emit("messages", "hello");
 
-// Output: Message received: Hello World
+// Output: Message received: [Hello, World] (List<String>)
 ```
 
 #### Returning a value from the subscribers
 ```java
 var emitter = new Emitter<String>();
 emitter.subscribe(new Subscriber<>("messages", String.class, (String value, SubscriberContext context) -> {
-    if (value.equals("hello")) {
-        context.output().set("Hello World!");
+    if (value.equals("5 + 5")) {
+        context.output().set(10);
     }
 }));
 
-NotificationReceipt receipt = emitter.emit("messages", "hello");
+NotificationReceipt receipt = emitter.emit("messages", "5 + 5");
 System.out.println("Output: " + receipt.output());
 
-// Output: Output: Hello World!
+// Output: Output: 10 (Integer)
 ```
 
 #### Handling errors
@@ -101,7 +103,11 @@ emitter.emit("messages", "hello", (Throwable error, SubscriberContext context) -
 // Output: Error: I need a 'hello' message!
 ```
 
-Todos:
+You can continue the propagation by returning `true` in the error handler. Also, you can freely modify the context in the error handler.
+
+
+
+##### Todos:
 - [ ] Document the project
 - [ ] Add more examples
 - [ ] Add more tests
